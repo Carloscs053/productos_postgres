@@ -201,27 +201,19 @@ public class ProductoController {
     public ResponseEntity<Map<String, Object>> crearProducto(@RequestBody Producto producto) {
         respuesta.clear();
 
-        if (!productoRepository.existsById(producto.getId())) {
-            respuesta.put("ERROR", "No existe el producto con el id " + producto.getId());
-            respuesta.put("STATUS", HttpStatus.NOT_FOUND);
-            return new ResponseEntity<>(respuesta, HttpStatus.NOT_FOUND);
-        }
+        // Validar solo campos obligatorios
+        if (producto.getNombre() == null || producto.getNombre().isBlank() ||
+                producto.getPrecio() == null || producto.getPrecio().compareTo(BigDecimal.ZERO) <= 0) {
 
-        if (producto.getNombre().isBlank() || producto.getNombre() == null || producto.getPrecio().compareTo(BigDecimal.ZERO) <= 0) {
-            respuesta.put("ERROR", "El nombre y el precio son obligatorios");
-            respuesta.put("STATUS", HttpStatus.BAD_REQUEST);
+            respuesta.put("ERROR", "El nombre y el precio son obligatorios y mayores a 0");
             return new ResponseEntity<>(respuesta, HttpStatus.BAD_REQUEST);
         }
 
-        Producto productoTemp = new Producto();
-        productoTemp.setNombre(producto.getNombre());
-        productoTemp.setPrecio(producto.getPrecio());
-        productoTemp.setFoto(producto.getFoto());
-        productoTemp.setFechaCreacion(Instant.from(LocalDateTime.now()));
-        productoTemp.setId(producto.getId());
-        productoRepository.save(productoTemp);
-        respuesta.put("STATUS", HttpStatus.OK);
-        respuesta.put("MENSAJE", "Producto creado");
-        return new ResponseEntity<>(respuesta, HttpStatus.OK);
+        // Guardar directamente (JPA generará el ID)
+        Producto nuevoProducto = productoRepository.save(producto);
+
+        respuesta.put("STATUS", HttpStatus.CREATED);
+        respuesta.put("DATA", nuevoProducto);
+        return new ResponseEntity<>(respuesta, HttpStatus.CREATED);
     }
 }
