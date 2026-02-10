@@ -201,10 +201,10 @@ public class ProductoController {
     public ResponseEntity<Map<String, Object>> crearProducto(@RequestBody Producto producto) {
         respuesta.clear();
 
-        if (!productoRepository.existsById(producto.getId())) {
-            respuesta.put("ERROR", "No existe el producto con el id " + producto.getId());
-            respuesta.put("STATUS", HttpStatus.NOT_FOUND);
-            return new ResponseEntity<>(respuesta, HttpStatus.NOT_FOUND);
+        if (productoRepository.existsById(producto.getId())) {
+            respuesta.put("ERROR", "El producto con el id " + producto.getId() + " ya existe");
+            respuesta.put("STATUS", HttpStatus.CONFLICT);
+            return new ResponseEntity<>(respuesta, HttpStatus.CONFLICT);
         }
 
         if (producto.getNombre().isBlank() || producto.getNombre() == null || producto.getPrecio().compareTo(BigDecimal.ZERO) <= 0) {
@@ -214,6 +214,7 @@ public class ProductoController {
         }
 
         Producto productoTemp = new Producto();
+        productoTemp.setId(0);
         productoTemp.setNombre(producto.getNombre());
         productoTemp.setPrecio(producto.getPrecio());
         productoTemp.setFoto(producto.getFoto());
