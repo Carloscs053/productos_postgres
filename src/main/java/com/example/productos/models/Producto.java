@@ -18,8 +18,8 @@ public class Producto {
     private String foto;
     @Column(name = "precio")
     private BigDecimal precio;
-    @Column(name = "fecha_creacion")
-    private Instant fechaCreacion;
+    @Column(name = "fecha_creacion", updatable = false)
+    private Instant fechaCreacion = Instant.now();
 
     public Producto() {
 
